@@ -104,10 +104,10 @@ export default function Tasks() {
   }
 
   return (
-    <div className="flex flex-grow ">
+    <div className="flex flex-grow min-h-screen w-full">
       
-        <div className='flex-col gap-y-3 border-r-2 w-1/4 bg-gray-300 '>
-            <form className='p-2 '>
+        <div className=' border-r-2 w-1/4 bg-gray-300 '>
+            <form className='p-2 flex flex-col gap-y-4'>
               <div className='w-full p-1'>
                 <p className='text-center text-lg'>Apply Filter</p>
               </div>
