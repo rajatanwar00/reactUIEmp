@@ -9,7 +9,12 @@ export default function Header(){
 
     useEffect(()=>{
         setEmp(localStorage.getItem('userType'))
+        if(!emp){
+            navigate('/login')
+        }
     },[])
+
+
 
     function logout(e){
         e.preventDefault()
