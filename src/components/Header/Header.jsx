@@ -5,21 +5,31 @@ import {Link,NavLink,useNavigate} from 'react-router-dom'
 export default function Header(){
     const [emp,setEmp]=useState('')
     const navigate=useNavigate()
-    const userType=localStorage.getItem('userType')
+    //const userType=localStorage.getItem('userType')
 
-    useEffect(()=>{
-        setEmp(localStorage.getItem('userType'))
-        if(!emp){
-            navigate('/login')
+    // useEffect(()=>{
+    //     setEmp(localStorage.getItem('userType'))
+
+    //     if(!emp){
+    //         navigate('/login')
+    //     }
+    // },[])
+
+    useEffect(() => {
+        const userType = localStorage.getItem('userType');
+        
+        if (!userType) {
+            navigate('/login');
+        } else {
+            setEmp(userType); 
         }
-    },[])
-
-
+    }, [navigate]);
 
     function logout(e){
         e.preventDefault()
     
         localStorage.clear()
+        setEmp(localStorage.getItem('userType'))
         navigate('/login')
       }
 
@@ -45,7 +55,7 @@ export default function Header(){
                                 Tasks
                             </NavLink>
                         </li>
-                        {userType=='admin'?
+                        {emp=='admin'?
                             (
                                 <>
                                 <li>

@@ -12,12 +12,14 @@ export default function Tasks() {
   const [ced,setCed]=useState("")
   const [uid,setUid]=useState("")
   const [ued,setUed]=useState("")
+  const [pgno,setPgno]=useState(1)
   const backendUrl='https://emp-system-gt0d.onrender.com'
   const token=localStorage.getItem('userToken')
   const userType=localStorage.getItem('userType')
   const [totalPages,setTotalPages]= useState(0)
 
     
+  // To fetch tasks
   useEffect(()=>{
 
     //filterTasks(e)
@@ -31,7 +33,7 @@ export default function Tasks() {
       uid:uid,
       ued:ued,
       limit:3,
-      pageno:1,
+      pageno:pgno,
       userType:userType
     }
 
@@ -47,6 +49,7 @@ export default function Tasks() {
       })
   },[])
 
+  // To fetch teams 
   useEffect(()=>{
     axios.get(`${backendUrl}/api/teams`,{headers:{token:token}})
       .then((response)=>{
@@ -66,6 +69,7 @@ export default function Tasks() {
 
   console.log({taskStatus,team,totalPages})
 
+
   function resetFilter(e){
     e.preventDefault();
     setTask('')
@@ -78,6 +82,7 @@ export default function Tasks() {
 
 
   function filterTasks(e){
+    if(e)
     e.preventDefault();
 
     const paramsObj={
@@ -89,7 +94,7 @@ export default function Tasks() {
       uid:uid,
       ued:ued,
       limit:3,
-      pageno:1,
+      pageno:pgno,
       userType:userType
     }
 
@@ -101,6 +106,13 @@ export default function Tasks() {
     .catch((err)=>{
       console.log(err)
     })
+  }
+
+  function newPage(pagenumber){
+    //e.preventDefault();
+    setPgno(pagenumber)
+
+    filterTasks();
   }
 
   return (
@@ -161,36 +173,9 @@ export default function Tasks() {
               <p className='text-xl p-2'>You will find tasks assigned to teams here, try out the filter section on the  left</p>
             </div>
             <div className='flex justify-center items-center'>
-              <div className='p-2 '>
-                <table>
-                  <thead>
-                    <tr className='border-b-4 border-t-4'>
-                      <th>Task</th>
-                      <th>Team</th>
-                      <th>Status</th>
-                      <th>Date Created</th>
-                      <th>Date Updated</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {tasksArray.map((task)=>(
-                      <tr className='odd:bg-gray-100 even:bg-white'>
-                        <td>{task.task}</td>
-                        <td>{task.assignedToId.name}</td>
-                        <td>{task.status}</td>
-                        <td>{new Date(task.createdAt).toISOString().slice(0,10)}</td>
-                        <td>{new Date(task.updatedAt).toISOString().slice(0,10)}</td>
-                        <td><select value={task.status} className='bg-blue-500 text-white p-1 rounded-md'>
-                            <option value="Pending">Pending</option>
-                            <option value="Done">Done</option>
-                            <option value="Completed">Completed</option>
-                          </select></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <PgnBtn count={totalPages} />
+              <div className='p-2 flex-grow place-items-center'>
+                <TasksTable tasksArray={tasksArray} />
+                <PgnBtn count={totalPages} currentPage={pgno} newPage={newPage} filterTasks={filterTasks}/>
               </div>
               
             </div>
@@ -200,15 +185,54 @@ export default function Tasks() {
   )
 }
 
-function PgnBtn({count}){
+// Button Component
+function PgnBtn({count,currentPage,newPage,filterTasks}){
   console.log("count",count)
   const elements=[]
 
   for(let i=0;i<count;i++){
     elements.push(
-      <button key={i} className='p-2'>{i+1}</button>
+      <button key={i} className={`p-2 ${currentPage==i+1?'bg-blue-500 text-white':'bg-gray-200 text-gray-700'}`} onClick={()=> newPage(i+1)} >{i+1}</button>
     )
   }
 
   return (<div className='flex p-2 items-end'>{elements}</div>)
+}
+
+
+// Tasks Table Component
+function TasksTable({tasksArray}){
+
+  return(
+    <table>
+      <thead>
+        <tr className='border-b-4 border-t-4'>
+          <th>Task</th>
+          <th>Team</th>
+          <th>Status</th>
+          <th>Date Created</th>
+          <th>Date Updated</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {tasksArray.map((task)=>(
+          <tr className='odd:bg-gray-100 even:bg-white'>
+            <td>{task.task}</td>
+            <td>{task.assignedToId.name}</td>
+            <td>{task.status}</td>
+            <td>{new Date(task.createdAt).toISOString().slice(0,10)}</td>
+            <td>{new Date(task.updatedAt).toISOString().slice(0,10)}</td>
+            <td>
+              <select value={task.status} className='bg-blue-500 text-white p-1 rounded-md'>
+                <option value="Pending">Pending</option>
+                <option value="Done">Done</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
 }

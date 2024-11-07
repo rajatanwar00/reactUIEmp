@@ -9,6 +9,7 @@ export default function Footer(){
                 <div className="p-2">
                     <input type="text" className="h-20 w-2/4 bg-gray-100"></input>
                 </div>
+                <button type="submit" className="bg-blue-500 text-white p-2 ">Submit</button>
             </div>
             
         </footer>
