@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useState } from 'react'
 import axios from 'axios'
+import Loader from './../Loader/Loader'
 
 export default function Tasks() {
   const [tasksArray,setTasksArray]= useState([])
@@ -17,6 +18,7 @@ export default function Tasks() {
   const token=localStorage.getItem('userToken')
   const userType=localStorage.getItem('userType')
   const [totalPages,setTotalPages]= useState(0)
+  const [loading,setLoading]=useState(false)
 
     
   // To fetch tasks
@@ -37,16 +39,20 @@ export default function Tasks() {
       userType:userType
     }
 
+    setLoading(true)
     axios.get(`${backendUrl}/api/tasks`,{headers:{token:`${token}`},params:paramsObj})
       .then((response)=>{
         console.log("Tasks Request")
         console.log(response)
+        setLoading(false)
         setTasksArray(response.data.taskslist)
         setTotalPages(Math.ceil((response.data.totalRecords)/paramsObj.limit))
       })
       .catch((err)=>{
         console.log(err)
+        setLoading(false)
       })
+
   },[])
 
   // To fetch teams 
@@ -98,13 +104,16 @@ export default function Tasks() {
       userType:userType
     }
 
+    setLoading(true)
     axios.get(`${backendUrl}/api/tasks`,{headers:{token:token},params:paramsObj})
     .then((response)=>{
+      setLoading(false)
       setTasksArray(response.data.taskslist)
       setTotalPages(Math.ceil((response.data.totalRecords)/paramsObj.limit))
     })
     .catch((err)=>{
       console.log(err)
+      setLoading(false)
     })
   }
 
@@ -172,11 +181,12 @@ export default function Tasks() {
             <div className='h-1/4'>
               <p className='text-xl p-2'>You will find tasks assigned to teams here, try out the filter section on the  left</p>
             </div>
-            <div className='flex justify-center items-center'>
+            <div className={`flex ${loading?'justify-center items-start p-0':'justify-center items-center'}`}>
+              {loading?<Loader className='h-20 bg-orange-300' />:
               <div className='p-2 flex-grow place-items-center'>
-                <TasksTable tasksArray={tasksArray} />
+                <TasksTable tasksArray={tasksArray} loading={loading}/>
                 <PgnBtn count={totalPages} currentPage={pgno} newPage={newPage} filterTasks={filterTasks}/>
-              </div>
+              </div>}
               
             </div>
             
@@ -201,7 +211,7 @@ function PgnBtn({count,currentPage,newPage,filterTasks}){
 
 
 // Tasks Table Component
-function TasksTable({tasksArray}){
+function TasksTable({tasksArray,loading}){
 
   return(
     <table>
